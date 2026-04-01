@@ -4,18 +4,26 @@ const { createClient } = require('@supabase/supabase-js');
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error('❌ Supabase URL or Key missing in .env file');
+let supabase = null;
+
+// Only create client if URL and Key are provided to prevent crash on Vercel startup
+if (supabaseUrl && supabaseKey) {
+  try {
+    supabase = createClient(supabaseUrl, supabaseKey);
+  } catch (err) {
+    console.error('❌ Failed to create Supabase client:', err.message);
+  }
+} else {
+  console.warn('⚠️ Supabase credentials missing. Database operations will fail.');
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 async function initialize() {
-  // Verifikasi koneksi sederhana
-  const { data, error } = await supabase.from('settings').select('key').limit(1);
+  if (!supabase) return;
+  
+  // Verification without blocking too long
+  const { error } = await supabase.from('settings').select('key').limit(1).maybeSingle();
   if (error) {
-    console.error('❌ Failed to connect to Supabase:', error.message);
-    console.log('💡 Pastikan Anda sudah menjalankan script SQL di Dashboard Supabase.');
+    console.error('❌ Supabase connection check failed:', error.message);
   } else {
     console.log('✅ Supabase connected successfully');
   }

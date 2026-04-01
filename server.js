@@ -3,7 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
 const path = require('path');
-const { initialize } = require('./database/db');
+const { initialize, supabase } = require('./database/db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,7 +17,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
@@ -41,19 +41,17 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Initialize DB then start server
-async function start() {
-  await initialize();
+// For Vercel: Initialize connection as soon as possible
+if (supabase) {
+  initialize().catch(err => console.error('Database initialization error:', err));
+}
+
+// Only listen on local environment
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`\n🚀 Portfolio server running at http://localhost:${PORT}`);
     console.log(`📋 Admin panel: http://localhost:${PORT}/admin`);
-    console.log(`\n   Default login: admin / admin123\n`);
   });
 }
-
-start().catch(err => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
-});
 
 module.exports = app;
