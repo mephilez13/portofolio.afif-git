@@ -1,30 +1,43 @@
 const express = require('express');
 const router = express.Router();
-const { queryAll, queryGet } = require('../database/db');
+const { supabase } = require('../database/db');
 
 // GET all portfolio data (for frontend)
-router.get('/portfolio', (req, res) => {
+router.get('/portfolio', async (req, res) => {
   try {
-    const settingsRows = queryAll('SELECT key, value FROM settings');
+    // Parallel fetch for better performance
+    const [
+      { data: settingsRows, error: settingsError },
+      { data: services, error: servicesError },
+      { data: projects, error: projectsError },
+      { data: testimonials, error: testimonialsError },
+      { data: skills, error: skillsError }
+    ] = await Promise.all([
+      supabase.from('settings').select('key, value'),
+      supabase.from('services').select('*').order('sort_order', { ascending: true }),
+      supabase.from('projects').select('*').order('sort_order', { ascending: true }),
+      supabase.from('testimonials').select('*').order('sort_order', { ascending: true }),
+      supabase.from('skills').select('*').order('sort_order', { ascending: true })
+    ]);
+
+    if (settingsError || servicesError || projectsError || testimonialsError || skillsError) {
+      throw new Error('Supabase query failed');
+    }
+
     const settings = {};
     settingsRows.forEach(row => {
-      settings[row.key] = JSON.parse(row.value);
+      settings[row.key] = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
     });
-
-    const services = queryAll('SELECT * FROM services ORDER BY sort_order ASC');
-    const projects = queryAll('SELECT * FROM projects ORDER BY sort_order ASC');
-    const testimonials = queryAll('SELECT * FROM testimonials ORDER BY sort_order ASC');
-    const skills = queryAll('SELECT * FROM skills ORDER BY sort_order ASC');
 
     res.json({
       hero: settings.hero || {},
       about: settings.about || {},
       contact: settings.contact || {},
       siteInfo: settings.siteInfo || {},
-      services,
-      projects,
-      testimonials,
-      skills
+      services: services || [],
+      projects: projects || [],
+      testimonials: testimonials || [],
+      skills: skills || []
     });
   } catch (error) {
     console.error('Error fetching portfolio data:', error);
@@ -32,33 +45,42 @@ router.get('/portfolio', (req, res) => {
   }
 });
 
-router.get('/settings/:key', (req, res) => {
+router.get('/settings/:key', async (req, res) => {
   try {
-    const row = queryGet('SELECT value FROM settings WHERE key = ?', [req.params.key]);
-    if (row) {
-      res.json(JSON.parse(row.value));
-    } else {
-      res.status(404).json({ error: 'Setting not found' });
+    const { data, error } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', req.params.key)
+      .single();
+
+    if (error || !data) {
+      return res.status(404).json({ error: 'Setting not found' });
     }
+    
+    res.json(typeof data.value === 'string' ? JSON.parse(data.value) : data.value);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.get('/services', (req, res) => {
-  res.json(queryAll('SELECT * FROM services ORDER BY sort_order ASC'));
+router.get('/services', async (req, res) => {
+  const { data } = await supabase.from('services').select('*').order('sort_order', { ascending: true });
+  res.json(data || []);
 });
 
-router.get('/projects', (req, res) => {
-  res.json(queryAll('SELECT * FROM projects ORDER BY sort_order ASC'));
+router.get('/projects', async (req, res) => {
+  const { data } = await supabase.from('projects').select('*').order('sort_order', { ascending: true });
+  res.json(data || []);
 });
 
-router.get('/testimonials', (req, res) => {
-  res.json(queryAll('SELECT * FROM testimonials ORDER BY sort_order ASC'));
+router.get('/testimonials', async (req, res) => {
+  const { data } = await supabase.from('testimonials').select('*').order('sort_order', { ascending: true });
+  res.json(data || []);
 });
 
-router.get('/skills', (req, res) => {
-  res.json(queryAll('SELECT * FROM skills ORDER BY sort_order ASC'));
+router.get('/skills', async (req, res) => {
+  const { data } = await supabase.from('skills').select('*').order('sort_order', { ascending: true });
+  res.json(data || []);
 });
 
 module.exports = router;

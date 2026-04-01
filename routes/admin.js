@@ -3,17 +3,11 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-const { queryAll, queryGet, queryRun } = require('../database/db');
+const { supabase } = require('../database/db');
 const { requireAuth } = require('../middleware/auth');
 
 // Multer config
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, '..', 'uploads')),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -28,11 +22,16 @@ const upload = multer({
 });
 
 // ============ AUTH ============
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const user = queryGet('SELECT * FROM admin_users WHERE username = ?', [username]);
-    if (user && bcrypt.compareSync(password, user.password)) {
+    const { data: user, error } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('username', username)
+      .single();
+
+    if (!error && user && bcrypt.compareSync(password, user.password)) {
       req.session.isAdmin = true;
       req.session.adminId = user.id;
       req.session.adminUsername = user.username;
@@ -57,15 +56,24 @@ router.get('/check-auth', (req, res) => {
   res.json({ authenticated: false });
 });
 
-router.post('/change-password', requireAuth, (req, res) => {
+router.post('/change-password', requireAuth, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   try {
-    const user = queryGet('SELECT * FROM admin_users WHERE id = ?', [req.session.adminId]);
-    if (!bcrypt.compareSync(currentPassword, user.password)) {
+    const { data: user, error } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('id', req.session.adminId)
+      .single();
+
+    if (error || !user || !bcrypt.compareSync(currentPassword, user.password)) {
       return res.status(400).json({ error: 'Current password is incorrect' });
     }
     const hashed = bcrypt.hashSync(newPassword, 10);
-    queryRun('UPDATE admin_users SET password = ? WHERE id = ?', [hashed, req.session.adminId]);
+    await supabase
+      .from('admin_users')
+      .update({ password: hashed })
+      .eq('id', req.session.adminId);
+    
     res.json({ success: true, message: 'Password changed successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
@@ -73,126 +81,213 @@ router.post('/change-password', requireAuth, (req, res) => {
 });
 
 // ============ UPLOAD ============
-router.post('/upload', requireAuth, upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.json({ success: true, filename: req.file.filename, path: '/uploads/' + req.file.filename });
+router.post('/upload', requireAuth, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const file = req.file;
+    const fileExt = path.extname(file.originalname);
+    const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000)}${fileExt}`;
+    const filePath = fileName;
+
+    const { data, error } = await supabase.storage
+      .from('portofolio-uploads')
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: false
+      });
+
+    if (error) throw error;
+
+    const { data: publicUrlData } = supabase.storage
+      .from('portofolio-uploads')
+      .getPublicUrl(filePath);
+
+    res.json({ success: true, filename: fileName, path: publicUrlData.publicUrl });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Failed to upload to Supabase' });
+  }
 });
 
 // ============ SETTINGS ============
-router.get('/settings/:key', requireAuth, (req, res) => {
+router.get('/settings/:key', requireAuth, async (req, res) => {
   try {
-    const row = queryGet('SELECT value FROM settings WHERE key = ?', [req.params.key]);
-    if (row) return res.json(JSON.parse(row.value));
-    res.status(404).json({ error: 'Setting not found' });
+    const { data, error } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', req.params.key)
+      .single();
+
+    if (error || !data) return res.status(404).json({ error: 'Setting not found' });
+    res.json(typeof data.value === 'string' ? JSON.parse(data.value) : data.value);
   } catch (error) { res.status(500).json({ error: 'Internal server error' }); }
 });
 
-router.put('/settings/:key', requireAuth, (req, res) => {
+router.put('/settings/:key', requireAuth, async (req, res) => {
   try {
-    const value = JSON.stringify(req.body);
-    const existing = queryGet('SELECT key FROM settings WHERE key = ?', [req.params.key]);
+    const { data: existing } = await supabase
+      .from('settings')
+      .select('key')
+      .eq('key', req.params.key)
+      .single();
+
+    const value = req.body; // Use as object for Supabase/Postgres JSONB
+
     if (existing) {
-      queryRun('UPDATE settings SET value = ?, updated_at = datetime("now") WHERE key = ?', [value, req.params.key]);
+      await supabase
+        .from('settings')
+        .update({ value, updated_at: new Date().toISOString() })
+        .eq('key', req.params.key);
     } else {
-      queryRun('INSERT INTO settings (key, value) VALUES (?, ?)', [req.params.key, value]);
+      await supabase
+        .from('settings')
+        .insert({ key: req.params.key, value });
     }
     res.json({ success: true });
-  } catch (error) { res.status(500).json({ error: 'Internal server error' }); }
+  } catch (error) { 
+    console.error('Settings update error:', error);
+    res.status(500).json({ error: 'Internal server error' }); 
+  }
 });
 
 // ============ SERVICES CRUD ============
-router.get('/services', requireAuth, (req, res) => {
-  res.json(queryAll('SELECT * FROM services ORDER BY sort_order ASC'));
+router.get('/services', requireAuth, async (req, res) => {
+  const { data } = await supabase.from('services').select('*').order('sort_order', { ascending: true });
+  res.json(data || []);
 });
 
-router.post('/services', requireAuth, (req, res) => {
+router.post('/services', requireAuth, async (req, res) => {
   const { title, description, icon } = req.body;
-  const maxRow = queryGet('SELECT MAX(sort_order) as max_val FROM services');
-  const maxOrder = (maxRow && maxRow.max_val) || 0;
-  const result = queryRun('INSERT INTO services (title, description, icon, sort_order) VALUES (?, ?, ?, ?)', [title, description, icon || 'star', maxOrder + 1]);
-  res.json({ success: true, id: result.lastInsertRowid });
+  const { data: maxRow } = await supabase.from('services').select('sort_order').order('sort_order', { ascending: false }).limit(1).single();
+  const maxOrder = (maxRow && maxRow.sort_order) || 0;
+  
+  const { data, error } = await supabase
+    .from('services')
+    .insert({ title, description, icon: icon || 'star', sort_order: maxOrder + 1 })
+    .select('id')
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true, id: data.id });
 });
 
-router.put('/services/:id', requireAuth, (req, res) => {
+router.put('/services/:id', requireAuth, async (req, res) => {
   const { title, description, icon, sort_order } = req.body;
-  queryRun('UPDATE services SET title = ?, description = ?, icon = ?, sort_order = ? WHERE id = ?', [title, description, icon, sort_order || 0, req.params.id]);
+  await supabase
+    .from('services')
+    .update({ title, description, icon, sort_order: sort_order || 0 })
+    .eq('id', req.params.id);
   res.json({ success: true });
 });
 
-router.delete('/services/:id', requireAuth, (req, res) => {
-  queryRun('DELETE FROM services WHERE id = ?', [req.params.id]);
+router.delete('/services/:id', requireAuth, async (req, res) => {
+  await supabase.from('services').delete().eq('id', req.params.id);
   res.json({ success: true });
 });
 
 // ============ PROJECTS CRUD ============
-router.get('/projects', requireAuth, (req, res) => {
-  res.json(queryAll('SELECT * FROM projects ORDER BY sort_order ASC'));
+router.get('/projects', requireAuth, async (req, res) => {
+  const { data } = await supabase.from('projects').select('*').order('sort_order', { ascending: true });
+  res.json(data || []);
 });
 
-router.post('/projects', requireAuth, (req, res) => {
+router.post('/projects', requireAuth, async (req, res) => {
   const { title, description, category, image, link } = req.body;
-  const maxRow = queryGet('SELECT MAX(sort_order) as max_val FROM projects');
-  const maxOrder = (maxRow && maxRow.max_val) || 0;
-  const result = queryRun('INSERT INTO projects (title, description, category, image, link, sort_order) VALUES (?, ?, ?, ?, ?, ?)', [title, description, category || 'all', image || '', link || '#', maxOrder + 1]);
-  res.json({ success: true, id: result.lastInsertRowid });
+  const { data: maxRow } = await supabase.from('projects').select('sort_order').order('sort_order', { ascending: false }).limit(1).single();
+  const maxOrder = (maxRow && maxRow.sort_order) || 0;
+  
+  const { data, error } = await supabase
+    .from('projects')
+    .insert({ title, description, category: category || 'all', image: image || '', link: link || '#', sort_order: maxOrder + 1 })
+    .select('id')
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true, id: data.id });
 });
 
-router.put('/projects/:id', requireAuth, (req, res) => {
+router.put('/projects/:id', requireAuth, async (req, res) => {
   const { title, description, category, image, link, sort_order } = req.body;
-  queryRun('UPDATE projects SET title = ?, description = ?, category = ?, image = ?, link = ?, sort_order = ? WHERE id = ?', [title, description, category, image, link, sort_order || 0, req.params.id]);
+  await supabase
+    .from('projects')
+    .update({ title, description, category, image, link, sort_order: sort_order || 0 })
+    .eq('id', req.params.id);
   res.json({ success: true });
 });
 
-router.delete('/projects/:id', requireAuth, (req, res) => {
-  queryRun('DELETE FROM projects WHERE id = ?', [req.params.id]);
+router.delete('/projects/:id', requireAuth, async (req, res) => {
+  await supabase.from('projects').delete().eq('id', req.params.id);
   res.json({ success: true });
 });
 
 // ============ TESTIMONIALS CRUD ============
-router.get('/testimonials', requireAuth, (req, res) => {
-  res.json(queryAll('SELECT * FROM testimonials ORDER BY sort_order ASC'));
+router.get('/testimonials', requireAuth, async (req, res) => {
+  const { data } = await supabase.from('testimonials').select('*').order('sort_order', { ascending: true });
+  res.json(data || []);
 });
 
-router.post('/testimonials', requireAuth, (req, res) => {
+router.post('/testimonials', requireAuth, async (req, res) => {
   const { name, role, content, avatar, rating } = req.body;
-  const maxRow = queryGet('SELECT MAX(sort_order) as max_val FROM testimonials');
-  const maxOrder = (maxRow && maxRow.max_val) || 0;
-  const result = queryRun('INSERT INTO testimonials (name, role, content, avatar, rating, sort_order) VALUES (?, ?, ?, ?, ?, ?)', [name, role, content, avatar || '', rating || 5, maxOrder + 1]);
-  res.json({ success: true, id: result.lastInsertRowid });
+  const { data: maxRow } = await supabase.from('testimonials').select('sort_order').order('sort_order', { ascending: false }).limit(1).single();
+  const maxOrder = (maxRow && maxRow.sort_order) || 0;
+  
+  const { data, error } = await supabase
+    .from('testimonials')
+    .insert({ name, role, content, avatar: avatar || '', rating: rating || 5, sort_order: maxOrder + 1 })
+    .select('id')
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true, id: data.id });
 });
 
-router.put('/testimonials/:id', requireAuth, (req, res) => {
+router.put('/testimonials/:id', requireAuth, async (req, res) => {
   const { name, role, content, avatar, rating, sort_order } = req.body;
-  queryRun('UPDATE testimonials SET name = ?, role = ?, content = ?, avatar = ?, rating = ?, sort_order = ? WHERE id = ?', [name, role, content, avatar, rating, sort_order || 0, req.params.id]);
+  await supabase
+    .from('testimonials')
+    .update({ name, role, content, avatar, rating, sort_order: sort_order || 0 })
+    .eq('id', req.params.id);
   res.json({ success: true });
 });
 
-router.delete('/testimonials/:id', requireAuth, (req, res) => {
-  queryRun('DELETE FROM testimonials WHERE id = ?', [req.params.id]);
+router.delete('/testimonials/:id', requireAuth, async (req, res) => {
+  await supabase.from('testimonials').delete().eq('id', req.params.id);
   res.json({ success: true });
 });
 
 // ============ SKILLS CRUD ============
-router.get('/skills', requireAuth, (req, res) => {
-  res.json(queryAll('SELECT * FROM skills ORDER BY sort_order ASC'));
+router.get('/skills', requireAuth, async (req, res) => {
+  const { data } = await supabase.from('skills').select('*').order('sort_order', { ascending: true });
+  res.json(data || []);
 });
 
-router.post('/skills', requireAuth, (req, res) => {
+router.post('/skills', requireAuth, async (req, res) => {
   const { name } = req.body;
-  const maxRow = queryGet('SELECT MAX(sort_order) as max_val FROM skills');
-  const maxOrder = (maxRow && maxRow.max_val) || 0;
-  const result = queryRun('INSERT INTO skills (name, sort_order) VALUES (?, ?)', [name, maxOrder + 1]);
-  res.json({ success: true, id: result.lastInsertRowid });
+  const { data: maxRow } = await supabase.from('skills').select('sort_order').order('sort_order', { ascending: false }).limit(1).single();
+  const maxOrder = (maxRow && maxRow.sort_order) || 0;
+  
+  const { data, error } = await supabase
+    .from('skills')
+    .insert({ name, sort_order: maxOrder + 1 })
+    .select('id')
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true, id: data.id });
 });
 
-router.put('/skills/:id', requireAuth, (req, res) => {
+router.put('/skills/:id', requireAuth, async (req, res) => {
   const { name, sort_order } = req.body;
-  queryRun('UPDATE skills SET name = ?, sort_order = ? WHERE id = ?', [name, sort_order || 0, req.params.id]);
+  await supabase
+    .from('skills')
+    .update({ name, sort_order: sort_order || 0 })
+    .eq('id', req.params.id);
   res.json({ success: true });
 });
 
-router.delete('/skills/:id', requireAuth, (req, res) => {
-  queryRun('DELETE FROM skills WHERE id = ?', [req.params.id]);
+router.delete('/skills/:id', requireAuth, async (req, res) => {
+  await supabase.from('skills').delete().eq('id', req.params.id);
   res.json({ success: true });
 });
 
