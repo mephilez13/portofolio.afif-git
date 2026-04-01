@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | Portfolio Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <!-- Login Screen -->
+  <div class="login-screen" id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="logo-icon">A</span><span class="logo-letter">FIF PORTOFOLIO</span>
+      </div>
+      <h2>Admin Panel</h2>
+      <p class="login-subtitle">Login to manage your portfolio</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-username"><i class="fas fa-user"></i> Username</label>
+          <input type="text" id="login-username" placeholder="Enter username" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password"><i class="fas fa-lock"></i> Password</label>
+          <input type="password" id="login-password" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+          <span>Login</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </form>
+      <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div class="admin-dashboard" id="admin-dashboard" style="display:none;">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="sidebar-logo">
+          <span class="logo-icon">A</span><span class="logo-letter">FIF PORTOFOLIO</span>
+        </a>
+        <span class="sidebar-title">Admin Panel</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="sidebar-link active" data-section="dashboard"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="#" class="sidebar-link" data-section="hero"><i class="fas fa-rocket"></i> Hero Section</a>
+        <a href="#" class="sidebar-link" data-section="services"><i class="fas fa-concierge-bell"></i> Services</a>
+        <a href="#" class="sidebar-link" data-section="about"><i class="fas fa-user"></i> About</a>
+        <a href="#" class="sidebar-link" data-section="projects"><i class="fas fa-folder-open"></i> Projects</a>
+        <a href="#" class="sidebar-link" data-section="testimonials"><i class="fas fa-quote-right"></i> Testimonials</a>
+        <a href="#" class="sidebar-link" data-section="skills"><i class="fas fa-tags"></i> Skills Marquee</a>
+        <a href="#" class="sidebar-link" data-section="contact"><i class="fas fa-address-book"></i> Contact Info</a>
+        <a href="#" class="sidebar-link" data-section="settings"><i class="fas fa-cog"></i> Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn-logout" id="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Topbar -->
+      <header class="topbar">
+        <button class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+        <div class="topbar-right">
+          <a href="/" class="btn btn-sm btn-outline" target="_blank"><i class="fas fa-external-link-alt"></i> View Site</a>
+          <div class="admin-avatar"><i class="fas fa-user"></i></div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="admin-content" id="admin-content">
+
+        <!-- Dashboard -->
+        <div class="content-section active" id="section-dashboard">
+          <h2 class="content-title"><i class="fas fa-home"></i> Dashboard</h2>
+          <p class="content-subtitle">Welcome to your portfolio admin panel</p>
+          <div class="dashboard-stats">
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon bg-blue"><i class="fas fa-concierge-bell"></i></div>
+              <div class="dash-stat-info">
+                <span class="dash-stat-number" id="dash-services-count">0</span>
+                <span class="dash-stat-label">Services</span>
+              </div>
+            </div>
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon bg-green"><i class="fas fa-folder-open"></i></div>
+              <div class="dash-stat-info">
+                <span class="dash-stat-number" id="dash-projects-count">0</span>
+                <span class="dash-stat-label">Projects</span>
+              </div>
+            </div>
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon bg-yellow"><i class="fas fa-quote-right"></i></div>
+              <div class="dash-stat-info">
+                <span class="dash-stat-number" id="dash-testimonials-count">0</span>
+                <span class="dash-stat-label">Testimonials</span>
+              </div>
+            </div>
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon bg-purple"><i class="fas fa-tags"></i></div>
+              <div class="dash-stat-info">
+                <span class="dash-stat-number" id="dash-skills-count">0</span>
+                <span class="dash-stat-label">Skills</span>
+              </div>
+            </div>
+          </div>
+          <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="quick-action-grid">
+              <button class="quick-action-btn" data-goto="hero"><i class="fas fa-rocket"></i> Edit Hero</button>
+              <button class="quick-action-btn" data-goto="projects"><i class="fas fa-plus"></i> Add Project</button>
+              <button class="quick-action-btn" data-goto="services"><i class="fas fa-plus"></i> Add Service</button>
+              <button class="quick-action-btn" data-goto="testimonials"><i class="fas fa-plus"></i> Add Testimonial</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="content-section" id="section-hero">
+          <h2 class="content-title"><i class="fas fa-rocket"></i> Hero Section</h2>
+          <p class="content-subtitle">Edit the main hero/banner of your portfolio</p>
+          <form id="hero-form" class="admin-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Greeting Text</label>
+                <input type="text" id="hero-greeting" placeholder="Hello !">
+              </div>
+              <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" id="hero-name" placeholder="Muhammad Afif Alfarizi">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Title Line</label>
+                <input type="text" id="hero-title" placeholder="Social Media Marketing &">
+              </div>
+              <div class="form-group">
+                <label>Title Highlight</label>
+                <input type="text" id="hero-title-highlight" placeholder="2D Illustrator">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="hero-desc" rows="3" placeholder="Your description..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Profile Image</label>
+              <div class="image-upload-area" id="hero-image-upload">
+                <div class="image-preview" id="hero-image-preview">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span>Click to upload or drag & drop</span>
+                </div>
+                <input type="file" id="hero-image-file" accept="image/*" hidden>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Resume Link</label>
+              <input type="text" id="hero-resume" placeholder="https://...">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+          </form>
+        </div>
+
+        <!-- Services Section -->
+        <div class="content-section" id="section-services">
+          <div class="content-header-row">
+            <div>
+              <h2 class="content-title"><i class="fas fa-concierge-bell"></i> Services</h2>
+              <p class="content-subtitle">Manage your services</p>
+            </div>
+            <button class="btn btn-primary" id="add-service-btn"><i class="fas fa-plus"></i> Add Service</button>
+          </div>
+          <div class="items-list" id="services-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="content-section" id="section-about">
+          <h2 class="content-title"><i class="fas fa-user"></i> About Me</h2>
+          <p class="content-subtitle">Edit your about section</p>
+          <form id="about-form" class="admin-form">
+            <div class="form-group">
+              <label>Bio / Description</label>
+              <textarea id="about-bio" rows="4" placeholder="Tell about yourself..."></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Years of Experience</label>
+                <input type="text" id="about-years" placeholder="3+">
+              </div>
+              <div class="form-group">
+                <label>Projects Completed</label>
+                <input type="text" id="about-projects" placeholder="50+">
+              </div>
+              <div class="form-group">
+                <label>Happy Clients</label>
+                <input type="text" id="about-clients" placeholder="30+">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>About Image</label>
+              <div class="image-upload-area" id="about-image-upload">
+                <div class="image-preview" id="about-image-preview">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span>Click to upload or drag & drop</span>
+                </div>
+                <input type="file" id="about-image-file" accept="image/*" hidden>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+          </form>
+        </div>
+
+        <!-- Projects Section -->
+        <div class="content-section" id="section-projects">
+          <div class="content-header-row">
+            <div>
+              <h2 class="content-title"><i class="fas fa-folder-open"></i> Projects</h2>
+              <p class="content-subtitle">Manage your portfolio projects</p>
+            </div>
+            <button class="btn btn-primary" id="add-project-btn"><i class="fas fa-plus"></i> Add Project</button>
+          </div>
+          <div class="items-list" id="projects-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Testimonials Section -->
+        <div class="content-section" id="section-testimonials">
+          <div class="content-header-row">
+            <div>
+              <h2 class="content-title"><i class="fas fa-quote-right"></i> Testimonials</h2>
+              <p class="content-subtitle">Manage client testimonials</p>
+            </div>
+            <button class="btn btn-primary" id="add-testimonial-btn"><i class="fas fa-plus"></i> Add Testimonial</button>
+          </div>
+          <div class="items-list" id="testimonials-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="content-section" id="section-skills">
+          <div class="content-header-row">
+            <div>
+              <h2 class="content-title"><i class="fas fa-tags"></i> Skills Marquee</h2>
+              <p class="content-subtitle">Manage skills shown in the scrolling marquee</p>
+            </div>
+            <button class="btn btn-primary" id="add-skill-btn"><i class="fas fa-plus"></i> Add Skill</button>
+          </div>
+          <div class="items-list" id="skills-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="content-section" id="section-contact">
+          <h2 class="content-title"><i class="fas fa-address-book"></i> Contact Info</h2>
+          <p class="content-subtitle">Edit your contact information</p>
+          <form id="contact-form" class="admin-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="contact-email" placeholder="your@email.com">
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="text" id="contact-phone" placeholder="+62 xxx-xxxx-xxxx">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>WhatsApp Number (without +)</label>
+                <input type="text" id="contact-whatsapp" placeholder="6285715946269">
+              </div>
+              <div class="form-group">
+                <label>Website</label>
+                <input type="text" id="contact-website" placeholder="https://...">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Address</label>
+              <input type="text" id="contact-address" placeholder="City, Country">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><i class="fab fa-instagram"></i> Instagram URL</label>
+                <input type="text" id="contact-instagram" placeholder="https://instagram.com/...">
+              </div>
+              <div class="form-group">
+                <label><i class="fab fa-linkedin"></i> LinkedIn URL</label>
+                <input type="text" id="contact-linkedin" placeholder="https://linkedin.com/in/...">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><i class="fab fa-behance"></i> Behance URL</label>
+                <input type="text" id="contact-behance" placeholder="https://behance.net/...">
+              </div>
+              <div class="form-group">
+                <label><i class="fab fa-dribbble"></i> Dribbble URL</label>
+                <input type="text" id="contact-dribbble" placeholder="https://dribbble.com/...">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+          </form>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="content-section" id="section-settings">
+          <h2 class="content-title"><i class="fas fa-cog"></i> Settings</h2>
+          <p class="content-subtitle">General site settings and admin password</p>
+          <form id="site-settings-form" class="admin-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Site Logo Text</label>
+                <input type="text" id="settings-logo" placeholder="AA">
+              </div>
+              <div class="form-group">
+                <label>Copyright Text</label>
+                <input type="text" id="settings-copyright" placeholder="© 2026 ...">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Settings</button>
+          </form>
+          <hr class="admin-divider">
+          <h3 class="content-title" style="font-size:1.2rem;margin-top:24px;"><i class="fas fa-key"></i> Change Password</h3>
+          <form id="password-form" class="admin-form" style="margin-top:16px;">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" id="pw-current" placeholder="Current password" required>
+              </div>
+              <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="pw-new" placeholder="New password" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-key"></i> Change Password</button>
+          </form>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h3 id="modal-header-title">Modal</h3>
+        <button class="modal-close" id="modal-close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Dynamic form content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
