@@ -22,8 +22,13 @@ router.get('/portfolio', async (req, res) => {
       supabase.from('experiences').select('*').order('sort_order', { ascending: true })
     ]);
 
-    if (settingsError || servicesError || projectsError || testimonialsError || skillsError || experiencesError) {
+    if (settingsError || servicesError || projectsError || testimonialsError || skillsError) {
+      console.error('Supabase query error:', {settingsError, servicesError, projectsError, testimonialsError, skillsError});
       throw new Error('Supabase query failed');
+    }
+    
+    if (experiencesError) {
+      console.warn('Experiences query failed (table might be missing):', experiencesError);
     }
 
     const settings = {};
