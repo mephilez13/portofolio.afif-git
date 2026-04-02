@@ -403,7 +403,9 @@ function renderDetailedSkills(skills) {
   grid.innerHTML = skills.map((s, index) => `
     <div class="detailed-skill-card reveal" style="transition-delay: ${index * 0.1}s;">
       <div class="skill-icon" style="background: ${s.color || 'var(--primary)'};">
-        <i class="${s.icon || 'fas fa-star'}"></i>
+        ${s.icon && s.icon.startsWith('http') 
+          ? `<img src="${s.icon}" alt="${s.name}">` 
+          : `<i class="${s.icon || 'fas fa-star'}"></i>`}
       </div>
       <div class="skill-percentage">${s.percentage}%</div>
       <div class="skill-name">${s.name}</div>

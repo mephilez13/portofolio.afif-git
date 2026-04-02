@@ -869,8 +869,16 @@ window.editDetailedSkill = async function(id) {
         <input type="number" id="det-percentage" value="${skill.percentage}" min="0" max="100" required>
       </div>
       <div class="form-group">
-        <label>Icon Class (FontAwesome, e.g. fab fa-figma)</label>
+        <label>Icon (URL or Upload)</label>
         <input type="text" id="det-icon" value="${skill.icon || ''}" required>
+        <div style="margin-top:8px;">
+          <div class="image-upload-area" id="det-icon-upload">
+            <div class="image-preview" id="det-icon-preview" style="min-height:60px;">
+              ${skill.icon && skill.icon.startsWith('http') ? `<img src="${skill.icon}" alt="Icon">` : '<i class="fas fa-cloud-upload-alt"></i><span>Upload Icon</span>'}
+            </div>
+            <input type="file" id="det-icon-file" accept="image/*" hidden>
+          </div>
+        </div>
       </div>
       <div class="form-group">
         <label>Accent Color (Hex or Gradient)</label>
@@ -879,6 +887,8 @@ window.editDetailedSkill = async function(id) {
       <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-save"></i> Save</button>
     </form>
   `);
+
+  initModalImageUpload('det-icon-upload', 'det-icon-preview', 'det-icon-file', 'det-icon');
 
   document.getElementById('modal-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -930,8 +940,17 @@ document.getElementById('add-detailed-skill-btn')?.addEventListener('click', () 
         <input type="number" id="det-percentage" value="0" min="0" max="100" required>
       </div>
       <div class="form-group">
-        <label>Icon Class</label>
-        <input type="text" id="det-icon" placeholder="fab fa-figma" required>
+        <label>Icon (URL or Upload)</label>
+        <input type="text" id="det-icon" placeholder="https://..." required>
+        <div style="margin-top:8px;">
+          <div class="image-upload-area" id="det-icon-upload">
+            <div class="image-preview" id="det-icon-preview" style="min-height:60px;">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <span>Upload Icon</span>
+            </div>
+            <input type="file" id="det-icon-file" accept="image/*" hidden>
+          </div>
+        </div>
       </div>
       <div class="form-group">
         <label>Accent Color</label>
@@ -940,6 +959,8 @@ document.getElementById('add-detailed-skill-btn')?.addEventListener('click', () 
       <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-plus"></i> Add Skill</button>
     </form>
   `);
+
+  initModalImageUpload('det-icon-upload', 'det-icon-preview', 'det-icon-file', 'det-icon');
 
   document.getElementById('modal-form').addEventListener('submit', async (e) => {
     e.preventDefault();

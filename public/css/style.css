@@ -1918,6 +1918,14 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
   border-radius: var(--radius-md);
   font-size: 2rem;
   color: var(--white);
+  overflow: hidden;
+}
+
+.skill-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 10px;
 }
 
 .skill-icon.figma { background-color: #F24E1E; }
