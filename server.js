@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+const { Pool } = require('pg');
 const cors = require('cors');
 const path = require('path');
 const { initialize, supabase } = require('./database/db');
@@ -16,14 +18,27 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// BACK TO BASICS: Menggunakan MemoryStore (Sesi Sementara) demi menstabilkan Vercel
+// PostgreSQL pool for session store (Supabase)
+const pgPool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+// Session menggunakan PostgreSQL (Supabase) agar tidak hilang saat reload/cold start
 app.use(session({
+  store: new pgSession({
+    pool: pgPool,
+    tableName: 'session',
+    createTableIfMissing: true
+  }),
   secret: process.env.SESSION_SECRET || 'afif-portfolio-secret-key-2026',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000  // 7 hari
   }
 }));
 

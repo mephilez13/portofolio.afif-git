@@ -928,19 +928,30 @@ document.getElementById('add-experience-btn')?.addEventListener('click', () => {
 
   document.getElementById('modal-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    await fetch(`${API}/experiences`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: document.getElementById('exp-title').value,
-        subtitle: document.getElementById('exp-subtitle').value,
-        description: document.getElementById('exp-desc').value,
-        type: document.getElementById('exp-type').value
-      })
-    });
-    closeModal();
-    loadExperiences();
-    showToast('Experience added!', 'success');
+    try {
+      const res = await fetch(`${API}/experiences`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: document.getElementById('exp-title').value,
+          subtitle: document.getElementById('exp-subtitle').value,
+          description: document.getElementById('exp-desc').value,
+          type: document.getElementById('exp-type').value
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        showToast('Error: ' + (data.error || 'Failed to add experience'), 'error');
+        console.error('Add experience error:', data);
+        return;
+      }
+      closeModal();
+      loadExperiences();
+      showToast('Experience added!', 'success');
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+      console.error('Add experience error:', err);
+    }
   });
 });
 
