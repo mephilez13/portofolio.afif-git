@@ -614,6 +614,18 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
   animation: badgeFloat 4s ease-in-out infinite 2s;
 }
 
+.badge-3 {
+  top: 15%;
+  left: 0;
+  animation: badgeFloat 4s ease-in-out infinite 1s;
+}
+
+.badge-4 {
+  bottom: 25%;
+  left: -10px;
+  animation: badgeFloat 4s ease-in-out infinite 3s;
+}
+
 @keyframes badgeFloat {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-12px); }
