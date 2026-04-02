@@ -1239,6 +1239,24 @@ function initForms() {
 function initImageUploads() {
   setupImageUpload('hero-image-upload', 'hero-image-preview', 'hero-image-file');
   setupImageUpload('about-image-upload', 'about-image-preview', 'about-image-file');
+  
+  // CV Upload
+  const cvArea = document.getElementById('hero-cv-upload');
+  const cvPreview = document.getElementById('hero-cv-preview');
+  const cvFile = document.getElementById('hero-cv-file');
+  const cvInput = document.getElementById('hero-resume');
+  if (cvArea && cvPreview && cvFile && cvInput) {
+    cvArea.addEventListener('click', () => cvFile.click());
+    cvFile.addEventListener('change', async () => {
+      if (cvFile.files.length > 0) {
+        const path = await uploadFile(cvFile.files[0], cvPreview);
+        if (path) {
+          cvInput.value = path;
+          cvPreview.innerHTML = `<i class="fas fa-check-circle" style="color:var(--admin-success)"></i> <span>File uploaded!</span>`;
+        }
+      }
+    });
+  }
 }
 
 function setupImageUpload(areaId, previewId, fileId) {

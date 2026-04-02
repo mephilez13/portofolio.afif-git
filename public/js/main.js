@@ -115,9 +115,10 @@ function renderHero(hero, contact) {
     container.innerHTML = `<img src="${hero.profileImage}" alt="${hero.name || 'Profile'}" loading="lazy">`;
   }
 
-  // WhatsApp link
-  if (contact && contact.whatsapp) {
-    document.getElementById('hero-whatsapp-btn').href = `https://wa.me/${contact.whatsapp}`;
+  // Resume / CV link
+  if (hero.resumeLink) {
+    const resumeBtn = document.getElementById('hero-resume-btn');
+    if (resumeBtn) resumeBtn.href = hero.resumeLink;
   }
 }
 

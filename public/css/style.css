@@ -5,11 +5,11 @@
 
 /* ---- CSS Variables ---- */
 :root {
-  --primary: #2563EB;
-  --primary-dark: #1D4ED8;
-  --primary-light: #3B82F6;
-  --primary-lighter: #93C5FD;
-  --primary-bg: #EFF6FF;
+  --primary: #86BC42;
+  --primary-dark: #6C9B35;
+  --primary-light: #A5D669;
+  --primary-lighter: #C8E6A1;
+  --primary-bg: #F1F8E9;
   --accent: #0EA5E9;
   --white: #FFFFFF;
   --gray-50: #F8FAFC;
@@ -31,7 +31,7 @@
   --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
   --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
   --shadow-xl: 0 20px 60px rgba(0,0,0,0.12);
-  --shadow-primary: 0 8px 32px rgba(37,99,235,0.3);
+  --shadow-primary: 0 8px 32px rgba(134,188,66,0.3);
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
