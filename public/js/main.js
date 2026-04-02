@@ -221,7 +221,8 @@ function renderProjects(projects) {
 
   // Render project cards
     grid.innerHTML = projects.map((project, index) => `
-      <div class="project-card reveal" data-category="${project.category}" style="transition-delay: ${index * 0.1}s; cursor: pointer;" onclick="window.location.href='/project.html?id=${project.id}'">
+      <div class="project-card reveal" data-category="${project.category}" style="transition-delay: ${index * 0.1}s">
+        <a href="/project.html?id=${project.id}" class="card-cover-link">View ${project.title}</a>
         <div class="project-image">
           ${project.image
             ? `<img src="${project.image}" alt="${project.title}" loading="lazy">`
@@ -233,7 +234,7 @@ function renderProjects(projects) {
         </div>
         <div class="project-body">
           <span class="project-category">${project.category}</span>
-          <h3><a href="/project.html?id=${project.id}" onclick="event.preventDefault();">${project.title}</a></h3>
+          <h3><span style="color:var(--gray-800);">${project.title}</span></h3>
           <p>${project.description}</p>
         </div>
       </div>
