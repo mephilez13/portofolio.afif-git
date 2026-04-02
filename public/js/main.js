@@ -219,13 +219,10 @@ function renderProjects(projects) {
     ${categories.map(cat => `<button class="filter-btn" data-filter="${cat}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</button>`).join('')}
   `;
 
-  // Render project cards
+  // Render project cards - use <a> tag as the card wrapper for reliable mobile clicks
     grid.innerHTML = projects.map((project, index) => `
-      <div class="project-card reveal" data-category="${project.category}" style="transition-delay: ${index * 0.1}s; position: relative;">
-        <!-- Invisible absolute link over the whole card -->
-        <a href="/project.html?id=${project.id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; display: block;" aria-label="View Project ${project.title}"></a>
-        
-        <div class="project-image" style="pointer-events: none;">
+      <a href="/project.html?id=${project.id}" class="project-card reveal" data-category="${project.category}" style="transition-delay: ${index * 0.1}s;" aria-label="View Project ${project.title}">
+        <div class="project-image">
           ${project.image
             ? `<img src="${project.image}" alt="${project.title}" loading="lazy">`
             : `<div class="project-image-placeholder"><i class="${project.category === 'illustration' ? 'fas fa-paint-brush' : 'fas fa-bullhorn'}"></i></div>`
@@ -239,7 +236,7 @@ function renderProjects(projects) {
           <h3><span style="color:var(--gray-800);">${project.title}</span></h3>
           <p>${project.description}</p>
         </div>
-      </div>
+      </a>
     `).join('');
 
   // Filter functionality
