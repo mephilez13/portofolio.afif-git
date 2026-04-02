@@ -117,23 +117,25 @@ async function loadAllData() {
     loadSkills(),
     loadContact(),
     loadSiteSettings(),
-    loadExperiences()
+    loadExperiences(),
+    loadDetailedSkills()
   ]);
   updateDashboardStats();
 }
 
 async function updateDashboardStats() {
   try {
-    const [services, projects, testimonials, skills] = await Promise.all([
+    const [services, projects, testimonials, skills, detailedSkills] = await Promise.all([
       fetchJSON(`${API}/services`),
       fetchJSON(`${API}/projects`),
       fetchJSON(`${API}/testimonials`),
-      fetchJSON(`${API}/skills`)
+      fetchJSON(`${API}/skills`),
+      fetchJSON(`${API}/detailed-skills`)
     ]);
     document.getElementById('dash-services-count').textContent = services.length;
     document.getElementById('dash-projects-count').textContent = projects.length;
     document.getElementById('dash-testimonials-count').textContent = testimonials.length;
-    document.getElementById('dash-skills-count').textContent = skills.length;
+    document.getElementById('dash-skills-count').textContent = (skills.length || 0) + (detailedSkills ? detailedSkills.length : 0);
   } catch (e) { /* ignore */ }
 }
 
@@ -819,6 +821,149 @@ document.getElementById('add-skill-btn')?.addEventListener('click', () => {
     loadSkills();
     updateDashboardStats();
     showToast('Skill added!', 'success');
+  });
+});
+
+// ============================================
+// DETAILED SKILLS
+// ============================================
+async function loadDetailedSkills() {
+  try {
+    const skills = await fetchJSON(`${API}/detailed-skills`);
+    const list = document.getElementById('detailed-skills-list');
+    if (!list) return;
+
+    if (skills.length === 0) {
+      list.innerHTML = '<p style="color:var(--admin-text-muted);text-align:center;padding:40px;">No detailed skills yet.</p>';
+      return;
+    }
+    list.innerHTML = skills.map(s => `
+      <div class="item-card" data-id="${s.id}">
+        <div class="item-info">
+          <h4>${s.name}</h4>
+          <p>${s.percentage}% | <i class="${s.icon}"></i></p>
+          <div style="width:20px;height:20px;background:${s.color};border-radius:4px;margin-top:4px;"></div>
+        </div>
+        <div class="item-actions">
+          <button class="btn-edit" onclick="editDetailedSkill(${s.id})"><i class="fas fa-edit"></i> Edit</button>
+          <button class="btn-delete" onclick="deleteDetailedSkill(${s.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) { /* ignore */ }
+}
+
+window.editDetailedSkill = async function(id) {
+  const skills = await fetchJSON(`${API}/detailed-skills`);
+  const skill = skills.find(s => s.id === id);
+  if (!skill) return;
+
+  openModal('Edit Detailed Skill', `
+    <form id="modal-form">
+      <div class="form-group">
+        <label>Skill Name (e.g. FIGMA)</label>
+        <input type="text" id="det-name" value="${skill.name}" required>
+      </div>
+      <div class="form-group">
+        <label>Percentage (0-100)</label>
+        <input type="number" id="det-percentage" value="${skill.percentage}" min="0" max="100" required>
+      </div>
+      <div class="form-group">
+        <label>Icon Class (FontAwesome, e.g. fab fa-figma)</label>
+        <input type="text" id="det-icon" value="${skill.icon || ''}" required>
+      </div>
+      <div class="form-group">
+        <label>Accent Color (Hex or Gradient)</label>
+        <input type="text" id="det-color" value="${skill.color || '#2563EB'}" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-save"></i> Save</button>
+    </form>
+  `);
+
+  document.getElementById('modal-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const res = await fetch(`${API}/detailed-skills/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('det-name').value,
+        percentage: document.getElementById('det-percentage').value,
+        icon: document.getElementById('det-icon').value,
+        color: document.getElementById('det-color').value,
+        sort_order: skill.sort_order
+      })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.error || 'Failed to update', 'error');
+      return;
+    }
+
+    closeModal();
+    loadDetailedSkills();
+    showToast('Detailed skill updated!', 'success');
+  });
+};
+
+window.deleteDetailedSkill = async function(id) {
+  if (!confirm('Are you sure?')) return;
+  try {
+    const res = await fetch(`${API}/detailed-skills/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      loadDetailedSkills();
+      updateDashboardStats();
+      showToast('Deleted', 'info');
+    }
+  } catch (e) { showToast('Error', 'error'); }
+};
+
+document.getElementById('add-detailed-skill-btn')?.addEventListener('click', () => {
+  openModal('Add Detailed Skill', `
+    <form id="modal-form">
+      <div class="form-group">
+        <label>Skill Name</label>
+        <input type="text" id="det-name" required>
+      </div>
+      <div class="form-group">
+        <label>Percentage</label>
+        <input type="number" id="det-percentage" value="0" min="0" max="100" required>
+      </div>
+      <div class="form-group">
+        <label>Icon Class</label>
+        <input type="text" id="det-icon" placeholder="fab fa-figma" required>
+      </div>
+      <div class="form-group">
+        <label>Accent Color</label>
+        <input type="text" id="det-color" value="#2563EB" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-plus"></i> Add Skill</button>
+    </form>
+  `);
+
+  document.getElementById('modal-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const res = await fetch(`${API}/detailed-skills`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('det-name').value,
+        percentage: document.getElementById('det-percentage').value,
+        icon: document.getElementById('det-icon').value,
+        color: document.getElementById('det-color').value
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.error || 'Failed to add', 'error');
+      return;
+    }
+
+    closeModal();
+    loadDetailedSkills();
+    updateDashboardStats();
+    showToast('Detailed skill added!', 'success');
   });
 });
 

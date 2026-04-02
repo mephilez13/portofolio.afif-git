@@ -12,14 +12,16 @@ router.get('/portfolio', async (req, res) => {
       { data: projects, error: projectsError },
       { data: testimonials, error: testimonialsError },
       { data: skills, error: skillsError },
-      { data: experiences, error: experiencesError }
+      { data: experiences, error: experiencesError },
+      { data: detailedSkills, error: detailedSkillsError }
     ] = await Promise.all([
       supabase.from('settings').select('key, value'),
       supabase.from('services').select('*').order('sort_order', { ascending: true }),
       supabase.from('projects').select('*').order('sort_order', { ascending: true }),
       supabase.from('testimonials').select('*').order('sort_order', { ascending: true }),
       supabase.from('skills').select('*').order('sort_order', { ascending: true }),
-      supabase.from('experiences').select('*').order('sort_order', { ascending: true })
+      supabase.from('experiences').select('*').order('sort_order', { ascending: true }),
+      supabase.from('detailed_skills').select('*').order('sort_order', { ascending: true })
     ]);
 
     if (settingsError || servicesError || projectsError || testimonialsError || skillsError) {
@@ -28,7 +30,11 @@ router.get('/portfolio', async (req, res) => {
     }
     
     if (experiencesError) {
-      console.warn('Experiences query failed (table might be missing):', experiencesError);
+      console.warn('Experiences query failed:', experiencesError);
+    }
+    
+    if (detailedSkillsError) {
+      console.warn('Detailed Skills query failed:', detailedSkillsError);
     }
 
     const settings = {};
@@ -45,7 +51,8 @@ router.get('/portfolio', async (req, res) => {
       projects: projects || [],
       testimonials: testimonials || [],
       skills: skills || [],
-      experiences: experiences || []
+      experiences: experiences || [],
+      detailedSkills: detailedSkills || []
     });
   } catch (error) {
     console.error('Error fetching portfolio data:', error);

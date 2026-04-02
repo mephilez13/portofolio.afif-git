@@ -76,6 +76,7 @@ async function loadPortfolioData() {
     renderServices(data.services);
     renderAbout(data.about);
     renderExperiences(data.experiences);
+    renderDetailedSkills(data.detailedSkills);
     renderProjects(data.projects);
     renderTestimonials(data.testimonials);
     renderContact(data.contact);
@@ -388,6 +389,26 @@ function initTestimonialSlider(total) {
   setInterval(() => {
     showSlide((current + 1) % total);
   }, 6000);
+}
+
+function renderDetailedSkills(skills) {
+  const grid = document.getElementById('detailed-skills-grid');
+  if (!grid) return;
+  
+  if (!skills || skills.length === 0) {
+    grid.innerHTML = '<p style="text-align:center;width:100%;color:var(--gray-400);">Simpan keterampilan Anda di Admin Panel untuk melihatnya di sini.</p>';
+    return;
+  }
+
+  grid.innerHTML = skills.map((s, index) => `
+    <div class="detailed-skill-card reveal" style="transition-delay: ${index * 0.1}s;">
+      <div class="skill-icon" style="background: ${s.color || 'var(--primary)'};">
+        <i class="${s.icon || 'fas fa-star'}"></i>
+      </div>
+      <div class="skill-percentage">${s.percentage}%</div>
+      <div class="skill-name">${s.name}</div>
+    </div>
+  `).join('');
 }
 
 // ============================================

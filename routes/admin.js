@@ -352,4 +352,53 @@ router.delete('/experiences/:id', requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// ============ DETAILED SKILLS CRUD ============
+router.get('/detailed-skills', requireAuth, async (req, res) => {
+  const { data } = await supabase.from('detailed_skills').select('*').order('sort_order', { ascending: true });
+  res.json(data || []);
+});
+
+router.post('/detailed-skills', requireAuth, async (req, res) => {
+  const { name, percentage, icon, color } = req.body;
+  const { data: maxRow } = await supabase.from('detailed_skills').select('sort_order').order('sort_order', { ascending: false }).limit(1).maybeSingle();
+  const maxOrder = (maxRow && maxRow.sort_order) || 0;
+  
+  const { data, error } = await supabase
+    .from('detailed_skills')
+    .insert({ 
+      name, 
+      percentage: parseInt(percentage) || 0, 
+      icon: icon || 'fas fa-star', 
+      color: color || '#2563EB',
+      sort_order: maxOrder + 1 
+    })
+    .select('id')
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true, id: data.id });
+});
+
+router.put('/detailed-skills/:id', requireAuth, async (req, res) => {
+  const { name, percentage, icon, color, sort_order } = req.body;
+  const { error } = await supabase
+    .from('detailed_skills')
+    .update({ 
+      name, 
+      percentage: parseInt(percentage) || 0, 
+      icon, 
+      color, 
+      sort_order: sort_order || 0 
+    })
+    .eq('id', req.params.id);
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
+});
+
+router.delete('/detailed-skills/:id', requireAuth, async (req, res) => {
+  await supabase.from('detailed_skills').delete().eq('id', req.params.id);
+  res.json({ success: true });
+});
+
 module.exports = router;
