@@ -1041,6 +1041,16 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
   transform: scale(1);
 }
 
+/* Fix double tap issue on mobile devices due to hover */
+@media (max-width: 768px) {
+  .project-overlay {
+    display: none !important;
+  }
+  .project-card:active {
+    transform: scale(0.98);
+  }
+}
+
 .project-body {
   padding: 24px;
 }
