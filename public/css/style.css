@@ -1683,18 +1683,18 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
    EXPERIENCE SECTION
    ============================================ */
 .experience-section {
-  background: var(--gray-900);
+  background: var(--gray-50);
   padding: 100px 0;
   position: relative;
   overflow: hidden;
 }
 
 .experience-section .section-title {
-  color: var(--white);
+  color: var(--gray-900);
 }
 
 .experience-section .section-subtitle {
-  color: var(--gray-400);
+  color: var(--gray-500);
 }
 
 .experience-grid {
@@ -1712,32 +1712,33 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--white);
+  color: var(--gray-900);
 }
 
 .column-title i {
   color: var(--primary);
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .experience-list {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--white);
+  border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
   padding: 40px;
   transition: var(--transition);
+  box-shadow: var(--shadow-sm);
 }
 
 .experience-list:hover {
   border-color: rgba(37, 99, 235, 0.3);
-  background: rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-md);
 }
 
 .experience-item {
   position: relative;
   padding-bottom: 30px;
   margin-bottom: 30px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--gray-100);
 }
 
 .experience-item:last-child {
@@ -1753,7 +1754,7 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
 .exp-title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--white);
+  color: var(--gray-800);
   margin-bottom: 8px;
   line-height: 1.4;
 }
@@ -1764,7 +1765,7 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
   flex-wrap: wrap;
   gap: 12px;
   font-size: 0.85rem;
-  color: var(--gray-400);
+  color: var(--gray-500);
   font-family: var(--font-heading);
 }
 
@@ -1775,8 +1776,8 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
 }
 
 .exp-meta .exp-subtitle {
-  color: var(--primary-light);
-  font-weight: 500;
+  color: var(--primary);
+  font-weight: 600;
 }
 
 .exp-meta i {
@@ -1786,7 +1787,7 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
 
 .exp-description {
   font-size: 0.9rem;
-  color: var(--gray-400);
+  color: var(--gray-600);
   line-height: 1.7;
   margin-top: 12px;
 }
