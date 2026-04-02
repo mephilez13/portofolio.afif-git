@@ -52,6 +52,7 @@
         <a href="#" class="sidebar-link" data-section="hero"><i class="fas fa-rocket"></i> Hero Section</a>
         <a href="#" class="sidebar-link" data-section="services"><i class="fas fa-concierge-bell"></i> Services</a>
         <a href="#" class="sidebar-link" data-section="about"><i class="fas fa-user"></i> About</a>
+        <a href="#" class="sidebar-link" data-section="experience"><i class="fas fa-graduation-cap"></i> Experience</a>
         <a href="#" class="sidebar-link" data-section="projects"><i class="fas fa-folder-open"></i> Projects</a>
         <a href="#" class="sidebar-link" data-section="testimonials"><i class="fas fa-quote-right"></i> Testimonials</a>
         <a href="#" class="sidebar-link" data-section="skills"><i class="fas fa-tags"></i> Skills Marquee</a>
@@ -216,8 +217,21 @@
                 <input type="file" id="about-image-file" accept="image/*" hidden>
               </div>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
-          </form>
+            </form>
+        </div>
+
+        <!-- Experience Section -->
+        <div class="content-section" id="section-experience">
+          <div class="content-header-row">
+            <div>
+              <h2 class="content-title"><i class="fas fa-graduation-cap"></i> Experience</h2>
+              <p class="content-subtitle">Manage your education and work experience</p>
+            </div>
+            <button class="btn btn-primary" id="add-experience-btn"><i class="fas fa-plus"></i> Add Experience</button>
+          </div>
+          <div class="items-list" id="experiences-list">
+            <!-- Populated by JS -->
+          </div>
         </div>
 
         <!-- Projects Section -->

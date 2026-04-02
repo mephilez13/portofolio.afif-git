@@ -116,7 +116,8 @@ async function loadAllData() {
     loadTestimonials(),
     loadSkills(),
     loadContact(),
-    loadSiteSettings()
+    loadSiteSettings(),
+    loadExperiences()
   ]);
   updateDashboardStats();
 }
@@ -804,6 +805,142 @@ document.getElementById('add-skill-btn')?.addEventListener('click', () => {
     loadSkills();
     updateDashboardStats();
     showToast('Skill added!', 'success');
+  });
+});
+
+// ============================================
+// EXPERIENCES
+// ============================================
+async function loadExperiences() {
+  try {
+    const experiences = await fetchJSON(`${API}/experiences`);
+    const list = document.getElementById('experiences-list');
+    if (!list) return;
+
+    if (experiences.length === 0) {
+      list.innerHTML = '<p style="color:var(--admin-text-muted);text-align:center;padding:40px;">No experiences yet.</p>';
+      return;
+    }
+    list.innerHTML = experiences.map(e => `
+      <div class="item-card" data-id="${e.id}">
+        <div class="item-info">
+          <h4>${e.title}</h4>
+          <p>${e.subtitle || ''} | <span class="item-badge">${e.type}</span></p>
+        </div>
+        <div class="item-actions">
+          <button class="btn-edit" onclick="editExperience(${e.id})"><i class="fas fa-edit"></i> Edit</button>
+          <button class="btn-delete" onclick="deleteExperience(${e.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) { /* ignore */ }
+}
+
+window.editExperience = async function(id) {
+  const experiences = await fetchJSON(`${API}/experiences`);
+  const exp = experiences.find(e => e.id === id);
+  if (!exp) return;
+
+  openModal('Edit Experience', `
+    <form id="modal-form">
+      <div class="form-group">
+        <label>Title (e.g. Graphic Designer / Universitas ABC)</label>
+        <input type="text" id="exp-title" value="${exp.title}" required>
+      </div>
+      <div class="form-group">
+        <label>Subtitle (e.g. 2020 - Present)</label>
+        <input type="text" id="exp-subtitle" value="${exp.subtitle || ''}">
+      </div>
+      <div class="form-group">
+        <label>Description (e.g. 4.8/5 or short detail)</label>
+        <textarea id="exp-desc" rows="3">${exp.description || ''}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="exp-type">
+          <option value="work" ${exp.type === 'work' ? 'selected' : ''}>Work Experience</option>
+          <option value="education" ${exp.type === 'education' ? 'selected' : ''}>Education & Certifications</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-save"></i> Save</button>
+    </form>
+  `);
+
+  document.getElementById('modal-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await fetch(`${API}/experiences/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: document.getElementById('exp-title').value,
+        subtitle: document.getElementById('exp-subtitle').value,
+        description: document.getElementById('exp-desc').value,
+        type: document.getElementById('exp-type').value,
+        sort_order: exp.sort_order
+      })
+    });
+    closeModal();
+    loadExperiences();
+    showToast('Experience updated!', 'success');
+  });
+};
+
+window.deleteExperience = async function(id) {
+  if (!confirm('Are you sure you want to delete this experience?')) return;
+  try {
+    const res = await fetch(`${API}/experiences/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      loadExperiences();
+      showToast('Experience deleted successfully', 'info');
+    } else {
+      showToast('Failed to delete experience', 'error');
+    }
+  } catch (e) {
+    showToast('Error deleting experience', 'error');
+  }
+};
+
+document.getElementById('add-experience-btn')?.addEventListener('click', () => {
+  openModal('Add Experience', `
+    <form id="modal-form">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="exp-title" required>
+      </div>
+      <div class="form-group">
+        <label>Subtitle (e.g. 2020 - Present)</label>
+        <input type="text" id="exp-subtitle">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="exp-desc" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="exp-type">
+          <option value="work">Work Experience</option>
+          <option value="education">Education & Certifications</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-plus"></i> Add Experience</button>
+    </form>
+  `);
+
+  document.getElementById('modal-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await fetch(`${API}/experiences`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: document.getElementById('exp-title').value,
+        subtitle: document.getElementById('exp-subtitle').value,
+        description: document.getElementById('exp-desc').value,
+        type: document.getElementById('exp-type').value
+      })
+    });
+    closeModal();
+    loadExperiences();
+    showToast('Experience added!', 'success');
   });
 });
 

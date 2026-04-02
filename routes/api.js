@@ -11,16 +11,18 @@ router.get('/portfolio', async (req, res) => {
       { data: services, error: servicesError },
       { data: projects, error: projectsError },
       { data: testimonials, error: testimonialsError },
-      { data: skills, error: skillsError }
+      { data: skills, error: skillsError },
+      { data: experiences, error: experiencesError }
     ] = await Promise.all([
       supabase.from('settings').select('key, value'),
       supabase.from('services').select('*').order('sort_order', { ascending: true }),
       supabase.from('projects').select('*').order('sort_order', { ascending: true }),
       supabase.from('testimonials').select('*').order('sort_order', { ascending: true }),
-      supabase.from('skills').select('*').order('sort_order', { ascending: true })
+      supabase.from('skills').select('*').order('sort_order', { ascending: true }),
+      supabase.from('experiences').select('*').order('sort_order', { ascending: true })
     ]);
 
-    if (settingsError || servicesError || projectsError || testimonialsError || skillsError) {
+    if (settingsError || servicesError || projectsError || testimonialsError || skillsError || experiencesError) {
       throw new Error('Supabase query failed');
     }
 
@@ -37,7 +39,8 @@ router.get('/portfolio', async (req, res) => {
       services: services || [],
       projects: projects || [],
       testimonials: testimonials || [],
-      skills: skills || []
+      skills: skills || [],
+      experiences: experiences || []
     });
   } catch (error) {
     console.error('Error fetching portfolio data:', error);
@@ -97,6 +100,11 @@ router.get('/testimonials', async (req, res) => {
 
 router.get('/skills', async (req, res) => {
   const { data } = await supabase.from('skills').select('*').order('sort_order', { ascending: true });
+  res.json(data || []);
+});
+
+router.get('/experiences', async (req, res) => {
+  const { data } = await supabase.from('experiences').select('*').order('sort_order', { ascending: true });
   res.json(data || []);
 });
 

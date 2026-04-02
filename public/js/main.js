@@ -75,6 +75,7 @@ async function loadPortfolioData() {
     renderSkillsMarquee(data.skills);
     renderServices(data.services);
     renderAbout(data.about);
+    renderExperiences(data.experiences);
     renderProjects(data.projects);
     renderTestimonials(data.testimonials);
     renderContact(data.contact);
@@ -498,4 +499,34 @@ function showToast(message, type = 'info') {
     toast.classList.add('hiding');
     setTimeout(() => toast.remove(), 400);
   }, 3000);
+}
+function renderExperiences(experiences) {
+  if (!experiences || experiences.length === 0) return;
+
+  const eduList = document.getElementById('education-list');
+  const workList = document.getElementById('work-list');
+
+  const education = experiences.filter(exp => exp.type === 'education');
+  const work = experiences.filter(exp => exp.type === 'work');
+
+  const renderList = (list, items) => {
+    if (items.length === 0) {
+      list.innerHTML = '<p style="color:var(--gray-500);text-align:center;padding:20px;">No items yet.</p>';
+      return;
+    }
+    list.innerHTML = items.map(exp => `
+      <div class="experience-item reveal">
+        <div class="exp-header">
+          <h4 class="exp-title">${exp.title}</h4>
+          <div class="exp-meta">
+            <span class="exp-subtitle"><i class="fas fa-university"></i> ${exp.subtitle || ''}</span>
+            <span class="exp-date"><i class="far fa-calendar-alt"></i> ${exp.description || ''}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  };
+
+  renderList(eduList, education);
+  renderList(workList, work);
 }
