@@ -1683,7 +1683,7 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
    EXPERIENCE SECTION
    ============================================ */
 .experience-section {
-  background: var(--gray-50);
+  background: var(--white);
   padding: 100px 0;
   position: relative;
   overflow: hidden;
