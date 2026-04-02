@@ -19,18 +19,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // PostgreSQL pool for session store (Supabase)
-const pgPool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
-
-// Session menggunakan PostgreSQL (Supabase) agar tidak hilang saat reload/cold start
-app.use(session({
-  store: new pgSession({
+let sessionStore;
+if (process.env.DATABASE_URL) {
+  const pgPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+  
+  sessionStore = new pgSession({
     pool: pgPool,
     tableName: 'session',
     createTableIfMissing: true
-  }),
+  });
+  console.log('✅ Using PostgreSQL for sessions');
+} else {
+  console.warn('⚠️ DATABASE_URL missing, falling back to MemoryStore for sessions');
+}
+
+// Session menggunakan PostgreSQL (Supabase) agar tidak hilang saat reload/cold start
+app.use(session({
+  store: sessionStore, // Akan undefined jika fallback ke MemoryStore (default)
   secret: process.env.SESSION_SECRET || 'afif-portfolio-secret-key-2026',
   resave: false,
   saveUninitialized: false,
