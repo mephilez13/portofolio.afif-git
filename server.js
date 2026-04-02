@@ -1,11 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const pgSession = require('connect-pg-simple')(session);
-const { Pool } = require('pg');
 const cors = require('cors');
 const path = require('path');
 const { initialize, supabase } = require('./database/db');
+const { Store } = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,27 +17,38 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// PostgreSQL pool for session store (Supabase)
-let sessionStore;
-if (process.env.DATABASE_URL) {
-  const pgPool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
-  
-  sessionStore = new pgSession({
-    pool: pgPool,
-    tableName: 'session',
-    createTableIfMissing: true
-  });
-  console.log('✅ Using PostgreSQL for sessions');
-} else {
-  console.warn('⚠️ DATABASE_URL missing, falling back to MemoryStore for sessions');
+// Custom Session Store using Supabase JS client to avoid direct pg connection timeouts
+class SupabaseStore extends Store {
+  async get(sid, callback) {
+    if (!supabase) return callback(null, null);
+    try {
+      const { data, error } = await supabase.from('session').select('sess').eq('sid', sid).single();
+      if (error || !data) return callback(null, null);
+      callback(null, data.sess);
+    } catch (err) { callback(err); }
+  }
+
+  async set(sid, sess, callback) {
+    if (!supabase) return callback(null);
+    try {
+      const expire = new Date(sess.cookie.expires || Date.now() + 86400000).toISOString();
+      await supabase.from('session').upsert([{ sid, sess, expire }], { onConflict: 'sid' });
+      callback(null);
+    } catch (err) { callback(err); }
+  }
+
+  async destroy(sid, callback) {
+    if (!supabase) return callback(null);
+    try {
+      await supabase.from('session').delete().eq('sid', sid);
+      callback(null);
+    } catch (err) { callback(err); }
+  }
 }
 
-// Session menggunakan PostgreSQL (Supabase) agar tidak hilang saat reload/cold start
+// Session menggunakan Supabase REST API
 app.use(session({
-  store: sessionStore, // Akan undefined jika fallback ke MemoryStore (default)
+  store: supabase ? new SupabaseStore() : undefined,
   secret: process.env.SESSION_SECRET || 'afif-portfolio-secret-key-2026',
   resave: false,
   saveUninitialized: false,
