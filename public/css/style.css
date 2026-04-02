@@ -1873,3 +1873,92 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
     padding: 8px 14px;
   }
 }
+
+/* ============================================
+   DETAILED SKILLS SECTION
+   ============================================ */
+.detailed-skills-section {
+  padding: 80px 0;
+}
+
+.detailed-skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.detailed-skill-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  text-align: center;
+  min-width: 140px;
+  max-width: 160px;
+  flex: 1;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.detailed-skill-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light);
+}
+
+.skill-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 2rem;
+  color: var(--white);
+}
+
+.skill-icon.figma { background-color: #F24E1E; }
+.skill-icon.premiere { background-color: #9999FF; color: #00005C; }
+.skill-icon.illustrator { background-color: #FF9A00; color: #330000; }
+.skill-icon.canva { background: linear-gradient(135deg, #00C4CC, #7D2AE8); }
+.skill-icon.photoshop { background-color: #31A8FF; color: #001E36; }
+.skill-icon.webflow { background-color: #4353FF; }
+.skill-icon.laravel { background-color: #FF2D20; }
+
+.skill-percentage {
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}
+
+.skill-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--gray-500);
+  text-transform: uppercase;
+}
+
+.detailed-skills-footer {
+  text-align: center;
+  margin-top: 50px;
+  color: var(--gray-600);
+  font-size: 1.05rem;
+  padding: 20px;
+  border-top: 1px solid var(--gray-200);
+}
+
+.detailed-skills-footer p {
+  margin-bottom: 8px;
+}
+
+.detailed-skills-footer .font-bold {
+  color: var(--gray-900);
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+}
