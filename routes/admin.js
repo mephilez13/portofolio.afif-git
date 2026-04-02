@@ -193,13 +193,25 @@ router.get('/projects', requireAuth, async (req, res) => {
 });
 
 router.post('/projects', requireAuth, async (req, res) => {
-  const { title, description, category, image, link } = req.body;
+  const { title, description, category, image, link, content, client, project_date, tech_stack, extra_images } = req.body;
   const { data: maxRow } = await supabase.from('projects').select('sort_order').order('sort_order', { ascending: false }).limit(1).single();
   const maxOrder = (maxRow && maxRow.sort_order) || 0;
   
   const { data, error } = await supabase
     .from('projects')
-    .insert({ title, description, category: category || 'all', image: image || '', link: link || '#', sort_order: maxOrder + 1 })
+    .insert({ 
+      title, 
+      description, 
+      category: category || 'all', 
+      image: image || '', 
+      link: link || '#', 
+      sort_order: maxOrder + 1,
+      content: content || '',
+      client: client || '',
+      project_date: project_date || '',
+      tech_stack: tech_stack || '',
+      extra_images: extra_images || []
+    })
     .select('id')
     .single();
 
@@ -208,11 +220,25 @@ router.post('/projects', requireAuth, async (req, res) => {
 });
 
 router.put('/projects/:id', requireAuth, async (req, res) => {
-  const { title, description, category, image, link, sort_order } = req.body;
-  await supabase
+  const { title, description, category, image, link, sort_order, content, client, project_date, tech_stack, extra_images } = req.body;
+  const { error } = await supabase
     .from('projects')
-    .update({ title, description, category, image, link, sort_order: sort_order || 0 })
+    .update({ 
+      title, 
+      description, 
+      category, 
+      image, 
+      link, 
+      sort_order: sort_order || 0,
+      content,
+      client,
+      project_date,
+      tech_stack,
+      extra_images: extra_images || []
+    })
     .eq('id', req.params.id);
+
+  if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
 });
 

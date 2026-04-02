@@ -73,6 +73,23 @@ router.get('/projects', async (req, res) => {
   res.json(data || []);
 });
 
+router.get('/projects/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
+
+    if (error || !data) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get('/testimonials', async (req, res) => {
   const { data } = await supabase.from('testimonials').select('*').order('sort_order', { ascending: true });
   res.json(data || []);

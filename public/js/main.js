@@ -219,24 +219,24 @@ function renderProjects(projects) {
   `;
 
   // Render project cards
-  grid.innerHTML = projects.map((project, index) => `
-    <div class="project-card reveal" data-category="${project.category}" style="transition-delay: ${index * 0.1}s">
-      <div class="project-image">
-        ${project.image
-          ? `<img src="${project.image}" alt="${project.title}" loading="lazy">`
-          : `<div class="project-image-placeholder"><i class="${project.category === 'illustration' ? 'fas fa-paint-brush' : 'fas fa-bullhorn'}"></i></div>`
-        }
-        <a href="${project.link || '#'}" class="project-overlay" ${project.link && project.link !== '#' ? 'target="_blank"' : ''}>
-          <span class="project-overlay-btn"><i class="fas fa-arrow-up-right-from-square"></i></span>
-        </a>
+    grid.innerHTML = projects.map((project, index) => `
+      <div class="project-card reveal" data-category="${project.category}" style="transition-delay: ${index * 0.1}s">
+        <div class="project-image">
+          ${project.image
+            ? `<img src="${project.image}" alt="${project.title}" loading="lazy">`
+            : `<div class="project-image-placeholder"><i class="${project.category === 'illustration' ? 'fas fa-paint-brush' : 'fas fa-bullhorn'}"></i></div>`
+          }
+          <a href="/project.html?id=${project.id}" class="project-overlay">
+            <span class="project-overlay-btn"><i class="fas fa-eye"></i></span>
+          </a>
+        </div>
+        <div class="project-body" onclick="window.location.href='/project.html?id=${project.id}'" style="cursor: pointer;">
+          <span class="project-category">${project.category}</span>
+          <h3><a href="/project.html?id=${project.id}">${project.title}</a></h3>
+          <p>${project.description}</p>
+        </div>
       </div>
-      <div class="project-body">
-        <span class="project-category">${project.category}</span>
-        <h3>${project.title}</h3>
-        <p>${project.description}</p>
-      </div>
-    </div>
-  `).join('');
+    `).join('');
 
   // Filter functionality
   initProjectFilter();

@@ -363,23 +363,48 @@ window.editProject = async function(id) {
 
   openModal('Edit Project', `
     <form id="modal-form">
-      <div class="form-group">
-        <label>Title</label>
-        <input type="text" id="project-title" value="${project.title}" required>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="project-title" value="${project.title}" required>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="project-category">
+            <option value="marketing" ${project.category === 'marketing' ? 'selected' : ''}>Marketing</option>
+            <option value="illustration" ${project.category === 'illustration' ? 'selected' : ''}>Illustration</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Description</label>
-        <textarea id="project-desc" rows="3">${project.description || ''}</textarea>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Client</label>
+          <input type="text" id="project-client" value="${project.client || ''}" placeholder="e.g. Retail Store">
+        </div>
+        <div class="form-group">
+          <label>Project Date</label>
+          <input type="text" id="project-date" value="${project.project_date || ''}" placeholder="e.g. July 2024">
+        </div>
       </div>
+
       <div class="form-group">
-        <label>Category</label>
-        <select id="project-category">
-          <option value="marketing" ${project.category === 'marketing' ? 'selected' : ''}>Marketing</option>
-          <option value="illustration" ${project.category === 'illustration' ? 'selected' : ''}>Illustration</option>
-        </select>
+        <label>Tech Stack (comma separated)</label>
+        <input type="text" id="project-tech" value="${project.tech_stack || ''}" placeholder="e.g. WordPress, Elementor">
       </div>
+
       <div class="form-group">
-        <label>Image URL (or upload via Hero section)</label>
+        <label>Short Description (for card)</label>
+        <textarea id="project-desc" rows="2">${project.description || ''}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Detailed Content / Project Explanation</label>
+        <textarea id="project-content" rows="6" placeholder="Describe the project in detail...">${project.content || ''}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Main Image URL</label>
         <input type="text" id="project-image" value="${project.image || ''}">
         <div style="margin-top:8px;">
           <div class="image-upload-area" id="project-image-upload">
@@ -390,11 +415,18 @@ window.editProject = async function(id) {
           </div>
         </div>
       </div>
+
       <div class="form-group">
-        <label>Link</label>
+        <label>Extra Images URLs (one per line)</label>
+        <textarea id="project-extra-images" rows="3" placeholder="https://image1.jpg&#10;https://image2.jpg">${(project.extra_images || []).join('\n')}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>External Link (optional)</label>
         <input type="text" id="project-link" value="${project.link || '#'}">
       </div>
-      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-save"></i> Save</button>
+      
+      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-save"></i> Save Project</button>
     </form>
   `);
 
@@ -402,6 +434,9 @@ window.editProject = async function(id) {
 
   document.getElementById('modal-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const extraImagesString = document.getElementById('project-extra-images').value;
+    const extraImages = extraImagesString.split('\n').map(url => url.trim()).filter(url => url !== '');
+    
     await fetch(`${API}/projects/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -411,6 +446,11 @@ window.editProject = async function(id) {
         category: document.getElementById('project-category').value,
         image: document.getElementById('project-image').value,
         link: document.getElementById('project-link').value,
+        content: document.getElementById('project-content').value,
+        client: document.getElementById('project-client').value,
+        project_date: document.getElementById('project-date').value,
+        tech_stack: document.getElementById('project-tech').value,
+        extra_images: extraImages,
         sort_order: project.sort_order
       })
     });
@@ -439,23 +479,48 @@ window.deleteProject = async function(id) {
 document.getElementById('add-project-btn')?.addEventListener('click', () => {
   openModal('Add Project', `
     <form id="modal-form">
-      <div class="form-group">
-        <label>Title</label>
-        <input type="text" id="project-title" required>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="project-title" required>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="project-category">
+            <option value="marketing">Marketing</option>
+            <option value="illustration">Illustration</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Description</label>
-        <textarea id="project-desc" rows="3"></textarea>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Client</label>
+          <input type="text" id="project-client" placeholder="e.g. Retail Store">
+        </div>
+        <div class="form-group">
+          <label>Project Date</label>
+          <input type="text" id="project-date" placeholder="e.g. July 2024">
+        </div>
       </div>
+
       <div class="form-group">
-        <label>Category</label>
-        <select id="project-category">
-          <option value="marketing">Marketing</option>
-          <option value="illustration">Illustration</option>
-        </select>
+        <label>Tech Stack (comma separated)</label>
+        <input type="text" id="project-tech" placeholder="e.g. WordPress, Elementor">
       </div>
+
       <div class="form-group">
-        <label>Image</label>
+        <label>Short Description (for card)</label>
+        <textarea id="project-desc" rows="2"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Detailed Content / Project Explanation</label>
+        <textarea id="project-content" rows="6" placeholder="Describe the project in detail..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Main Image</label>
         <input type="text" id="project-image" placeholder="Image URL or upload below">
         <div style="margin-top:8px;">
           <div class="image-upload-area" id="project-image-upload">
@@ -466,10 +531,17 @@ document.getElementById('add-project-btn')?.addEventListener('click', () => {
           </div>
         </div>
       </div>
+
       <div class="form-group">
-        <label>Link</label>
+        <label>Extra Images URLs (one per line)</label>
+        <textarea id="project-extra-images" rows="3" placeholder="https://image1.jpg&#10;https://image2.jpg"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>External Link (optional)</label>
         <input type="text" id="project-link" placeholder="#">
       </div>
+      
       <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-plus"></i> Add Project</button>
     </form>
   `);
@@ -478,6 +550,9 @@ document.getElementById('add-project-btn')?.addEventListener('click', () => {
 
   document.getElementById('modal-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const extraImagesString = document.getElementById('project-extra-images').value;
+    const extraImages = extraImagesString.split('\n').map(url => url.trim()).filter(url => url !== '');
+
     await fetch(`${API}/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -486,7 +561,12 @@ document.getElementById('add-project-btn')?.addEventListener('click', () => {
         description: document.getElementById('project-desc').value,
         category: document.getElementById('project-category').value,
         image: document.getElementById('project-image').value,
-        link: document.getElementById('project-link').value || '#'
+        link: document.getElementById('project-link').value || '#',
+        content: document.getElementById('project-content').value,
+        client: document.getElementById('project-client').value,
+        project_date: document.getElementById('project-date').value,
+        tech_stack: document.getElementById('project-tech').value,
+        extra_images: extraImages
       })
     });
     closeModal();

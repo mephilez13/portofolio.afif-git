@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" id="meta-description" content="Project Detail - Muhammad Afif Alfarizi">
+  <title id="page-title">Project Detail | Muhammad Afif Alfarizi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/project-detail.css">
+</head>
+
+<body>
+  <!-- Preloader -->
+  <div id="preloader">
+    <div class="loader">
+      <div class="loader-circle"></div>
+      <span class="loader-text">AFIF PORTOFOLIO</span>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav id="navbar" class="navbar scrolled">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-logo">
+        <span class="logo-icon">A</span><span class="logo-letter">AFIF PORTOFOLIO</span>
+      </a>
+      <ul class="navbar-menu" id="navbar-menu">
+        <li><a href="/#home" class="nav-link">Home</a></li>
+        <li><a href="/#services" class="nav-link">Services</a></li>
+        <li><a href="/#about" class="nav-link">About me</a></li>
+        <li><a href="/#projects" class="nav-link active">Projects</a></li>
+      </ul>
+      <a href="/#contact" class="btn btn-primary navbar-cta">Contact me</a>
+      <button class="navbar-toggle" id="navbar-toggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="project-detail-main">
+    <!-- Hero Section -->
+    <section class="project-hero">
+      <div class="container">
+        <div class="project-header-info">
+          <div class="project-badge" id="project-category">Project</div>
+          <h1 class="project-title" id="project-title">Loading Project...</h1>
+          <p class="project-summary" id="project-description">Please wait while we fetch the details.</p>
+        </div>
+
+        <div class="project-main-image-wrapper reveal">
+          <div class="project-main-image" id="project-main-image-container">
+            <!-- Image loaded via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="project-content-section section">
+      <div class="container">
+        <div class="project-grid">
+          <!-- Sidebar Info -->
+          <aside class="project-sidebar">
+            <div class="info-card reveal">
+              <h3>Project Info</h3>
+              <div class="info-item">
+                <span class="info-label">Client</span>
+                <span class="info-value" id="project-client">-</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Date</span>
+                <span class="info-value" id="project-date">-</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Category</span>
+                <span class="info-value" id="project-category-alt">-</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Website</span>
+                <a href="#" class="info-value live-link" id="project-link" target="_blank">View Live <i class="fas fa-external-link-alt"></i></a>
+              </div>
+            </div>
+
+            <div class="info-card reveal" style="transition-delay: 0.1s">
+              <h3>Technologies</h3>
+              <div class="tech-tags" id="project-tech-stack">
+                <!-- Tech tags populated via JS -->
+              </div>
+            </div>
+          </aside>
+
+          <!-- Main Text -->
+          <div class="project-main-content reveal" style="transition-delay: 0.2s">
+            <h2 class="content-title">About the Project</h2>
+            <div class="content-body" id="project-content">
+              <!-- Content populated via JS -->
+            </div>
+
+            <div class="project-gallery" id="project-extra-images">
+              <!-- Extra images populated via JS -->
+            </div>
+
+            <div class="project-footer-nav">
+              <a href="/#projects" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Projects</span>
+              </a>
+              <div class="share-links">
+                <span>Share:</span>
+                <a href="#" id="share-facebook" target="_blank"><i class="fab fa-facebook"></i></a>
+                <a href="#" id="share-twitter" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="#" id="share-linkedin" target="_blank"><i class="fab fa-linkedin"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="project-cta-section section">
+      <div class="container">
+        <div class="cta-card reveal">
+          <h2>Interested in working together?</h2>
+          <p>Let's discuss how I can help you with your next project.</p>
+          <a href="/#contact" class="btn btn-primary btn-lg">
+            <span>Get In Touch</span>
+            <i class="fas fa-paper-plane"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p id="footer-copyright">&copy; 2026 Muhammad Afif Alfarizi. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <script src="/js/project-detail.js"></script>
+</body>
+
+</html>
