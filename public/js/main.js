@@ -221,8 +221,7 @@ function renderProjects(projects) {
 
   // Render project cards
     grid.innerHTML = projects.map((project, index) => `
-      <div class="project-card reveal" data-category="${project.category}" style="transition-delay: ${index * 0.1}s">
-        <a href="/project.html?id=${project.id}" class="card-cover-link">View ${project.title}</a>
+      <a href="/project.html?id=${project.id}" class="project-card reveal" data-category="${project.category}" style="transition-delay: ${index * 0.1}s; display: block; text-decoration: none; color: inherit;">
         <div class="project-image">
           ${project.image
             ? `<img src="${project.image}" alt="${project.title}" loading="lazy">`
@@ -237,7 +236,7 @@ function renderProjects(projects) {
           <h3><span style="color:var(--gray-800);">${project.title}</span></h3>
           <p>${project.description}</p>
         </div>
-      </div>
+      </a>
     `).join('');
 
   // Filter functionality
