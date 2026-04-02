@@ -191,8 +191,8 @@ async function loadContact() {
     document.getElementById('contact-address').value = data.address || '';
     document.getElementById('contact-instagram').value = data.instagram || '';
     document.getElementById('contact-linkedin').value = data.linkedin || '';
-    document.getElementById('contact-behance').value = data.behance || '';
-    document.getElementById('contact-dribbble').value = data.dribbble || '';
+    document.getElementById('contact-tiktok').value = data.tiktok || '';
+    document.getElementById('contact-website-social').value = data.websiteSocial || '';
   } catch (e) { /* ignore */ }
 }
 
@@ -438,7 +438,7 @@ window.editProject = async function(id) {
     const extraImagesString = document.getElementById('project-extra-images').value;
     const extraImages = extraImagesString.split('\n').map(url => url.trim()).filter(url => url !== '');
     
-    await fetch(`${API}/projects/${id}`, {
+    const res = await fetch(`${API}/projects/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -455,6 +455,13 @@ window.editProject = async function(id) {
         sort_order: project.sort_order
       })
     });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      showToast(errorData.error || 'Failed to update project', 'error');
+      return;
+    }
+
     closeModal();
     loadProjects();
     showToast('Project updated!', 'success');
@@ -554,7 +561,7 @@ document.getElementById('add-project-btn')?.addEventListener('click', () => {
     const extraImagesString = document.getElementById('project-extra-images').value;
     const extraImages = extraImagesString.split('\n').map(url => url.trim()).filter(url => url !== '');
 
-    await fetch(`${API}/projects`, {
+    const res = await fetch(`${API}/projects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -570,6 +577,13 @@ document.getElementById('add-project-btn')?.addEventListener('click', () => {
         extra_images: extraImages
       })
     });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      showToast(errorData.error || 'Failed to add project', 'error');
+      return;
+    }
+
     closeModal();
     loadProjects();
     updateDashboardStats();
@@ -1011,8 +1025,8 @@ function initForms() {
         address: document.getElementById('contact-address').value,
         instagram: document.getElementById('contact-instagram').value,
         linkedin: document.getElementById('contact-linkedin').value,
-        behance: document.getElementById('contact-behance').value,
-        dribbble: document.getElementById('contact-dribbble').value
+        tiktok: document.getElementById('contact-tiktok').value,
+        websiteSocial: document.getElementById('contact-website-social').value
       })
     });
     showToast('Contact info saved!', 'success');

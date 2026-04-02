@@ -276,24 +276,36 @@ function renderContact(contact) {
   if (!contact) return;
 
   if (contact.email) document.getElementById('contact-email').textContent = contact.email;
-  if (contact.phone) document.getElementById('contact-phone').textContent = contact.phone;
+  
+  if (contact.phone) {
+    document.getElementById('contact-phone').textContent = contact.phone;
+    const phoneClean = contact.phone.replace(/\D/g, '');
+    document.getElementById('contact-phone-link').href = `https://wa.me/${phoneClean}`;
+  }
+  
   if (contact.website) {
     const w = contact.website.replace(/^https?:\/\//, '');
     document.getElementById('contact-website').textContent = w;
+    document.getElementById('contact-website-link').href = contact.website.startsWith('http') ? contact.website : `https://${contact.website}`;
   }
+  
   if (contact.address) document.getElementById('contact-address').textContent = contact.address;
 
   if (contact.instagram && contact.instagram !== '#') {
-    document.getElementById('social-instagram').href = contact.instagram;
+    const el = document.getElementById('social-instagram');
+    if (el) el.href = contact.instagram;
   }
   if (contact.linkedin && contact.linkedin !== '#') {
-    document.getElementById('social-linkedin').href = contact.linkedin;
+    const el = document.getElementById('social-linkedin');
+    if (el) el.href = contact.linkedin;
   }
-  if (contact.behance && contact.behance !== '#') {
-    document.getElementById('social-behance').href = contact.behance;
+  if (contact.tiktok && contact.tiktok !== '#') {
+    const el = document.getElementById('social-tiktok');
+    if (el) el.href = contact.tiktok;
   }
-  if (contact.dribbble && contact.dribbble !== '#') {
-    document.getElementById('social-dribbble').href = contact.dribbble;
+  if (contact.websiteSocial && contact.websiteSocial !== '#') {
+    const el = document.getElementById('social-website');
+    if (el) el.href = contact.websiteSocial;
   }
 }
 
